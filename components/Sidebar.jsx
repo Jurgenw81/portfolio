@@ -13,7 +13,8 @@ function Sidebar({ profile }) {
         <div className="sb-role">{profile.role}</div>
         <div className="sb-meta">
           <span>📍 {profile.location}</span>
-          <span>·</span>
+        </div>
+        <div className="sb-meta">
           <a href={`mailto:${profile.email}`}>{profile.email}</a>
         </div>
         <div className="sb-meta">
@@ -50,6 +51,26 @@ function Sidebar({ profile }) {
           ))}
         </ul>
       </div>
+
+      {profile.skills && (
+        <div className="sb-block">
+          <div className="sb-tag">// skills</div>
+          <div className="sb-skills">
+            {profile.skills.map((s, i) => (
+              <div key={i} className="sb-skillgroup">
+                <div className="sb-skillgroup-label">{s.group}</div>
+                <div className="sb-chips">
+                  {s.items.map((it) => (
+                    <span key={it} className="chip chip-sm">
+                      {it}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="sb-block sb-foot">
         <div className="sb-tag">// status</div>

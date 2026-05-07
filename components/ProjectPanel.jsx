@@ -1,38 +1,69 @@
 /* global React */
 // ============================================================================
 //  ProjectPanel — slides in from the right when a node is selected.
-//  Has a "summarize with AI" action that pings window.claude.complete.
+//  "generate" reveals the pre-written summary with a typing animation.
+//  No external API call required — everything ships in the static bundle.
 // ============================================================================
 
-const { useState: usePState, useEffect: usePEffect } = React;
+const { useState: usePState, useEffect: usePEffect, useRef: usePRef } = React;
 
 function ProjectPanel({ project, onClose }) {
   const [aiState, setAiState] = usePState({
     loading: false,
     text: "",
-    error: null,
+    revealed: false,
   });
+  const cancelRef = usePRef(null);
 
-  // Reset when project changes
+  // Reset whenever the user opens a different project
   usePEffect(() => {
-    setAiState({ loading: false, text: "", error: null });
+    if (cancelRef.current) cancelRef.current();
+    setAiState({ loading: false, text: "", revealed: false });
   }, [project?.id]);
 
   if (!project) return null;
 
-  const askAI = async () => {
-    setAiState({ loading: true, text: "", error: null });
-    try {
-      const prompt = `You are writing a single, short, evocative paragraph (3-4 sentences max) about a software project for a portfolio site. Keep it concrete, technical, and a little poetic. No marketing fluff. No emoji. Do not start with "This is" or "A". Project name: ${project.name}. Kind: ${project.kind}. One-liner: ${project.blurb}. Tags: ${project.tags.join(", ")}.`;
-      const text = await window.claude.complete(prompt);
-      setAiState({ loading: false, text: text.trim(), error: null });
-    } catch (e) {
-      setAiState({
-        loading: false,
-        text: "",
-        error: "couldn't reach the model. try again?",
-      });
-    }
+  const reveal = () => {
+    if (cancelRef.current) cancelRef.current();
+    setAiState({ loading: true, text: "", revealed: false });
+
+    const full = project.summary || project.blurb;
+    let i = 0;
+    let cancelled = false;
+    cancelRef.current = () => {
+      cancelled = true;
+    };
+
+    // tiny "thinking" pause, then a typewriter reveal
+    const start = setTimeout(() => {
+      if (cancelled) return;
+      const tick = () => {
+        if (cancelled) return;
+        i += 2 + Math.floor(Math.random() * 3);
+        const slice = full.slice(0, i);
+        setAiState({
+          loading: i < full.length,
+          text: slice,
+          revealed: true,
+        });
+        if (i < full.length) setTimeout(tick, 14);
+      };
+      tick();
+    }, 380);
+
+    cancelRef.current = () => {
+      cancelled = true;
+      clearTimeout(start);
+    };
+  };
+
+  const showFull = () => {
+    if (cancelRef.current) cancelRef.current();
+    setAiState({
+      loading: false,
+      text: project.summary || project.blurb,
+      revealed: true,
+    });
   };
 
   return (
@@ -60,23 +91,37 @@ function ProjectPanel({ project, onClose }) {
 
       <div className="panel-ai">
         <div className="panel-ai-head">
-          <span className="sb-tag">// ai_summary</span>
-          <button
-            className="ai-btn"
-            onClick={askAI}
-            disabled={aiState.loading}
-          >
-            {aiState.loading ? "thinking…" : aiState.text ? "regenerate" : "generate"}
-          </button>
+          <span className="sb-tag">// summary</span>
+          <div className="ai-actions">
+            {aiState.loading && (
+              <button className="ai-btn ghost" onClick={showFull}>
+                skip
+              </button>
+            )}
+            <button
+              className="ai-btn"
+              onClick={reveal}
+              disabled={aiState.loading}
+            >
+              {aiState.loading
+                ? "typing…"
+                : aiState.revealed
+                ? "replay"
+                : "generate"}
+            </button>
+          </div>
         </div>
         <div className="panel-ai-body">
-          {aiState.loading && <TypingDots />}
-          {aiState.error && <span className="ai-err">{aiState.error}</span>}
-          {aiState.text && <p>{aiState.text}</p>}
-          {!aiState.loading && !aiState.text && !aiState.error && (
+          {!aiState.revealed && (
             <span className="ai-hint">
-              ask the model for a fresh take on this project.
+              click generate for a deeper take on this project.
             </span>
+          )}
+          {aiState.revealed && (
+            <p>
+              {aiState.text}
+              {aiState.loading && <span className="caret">▍</span>}
+            </p>
           )}
         </div>
       </div>
@@ -91,16 +136,6 @@ function ProjectPanel({ project, onClose }) {
         <span className="arrow">→</span>
       </a>
     </div>
-  );
-}
-
-function TypingDots() {
-  return (
-    <span className="dots">
-      <span />
-      <span />
-      <span />
-    </span>
   );
 }
 
