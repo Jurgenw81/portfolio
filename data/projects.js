@@ -170,6 +170,84 @@ window.PROJECTS = [
     url: "https://viechn.at",
     coords: [0.55, 0.5],
   },
+  {
+    id: "llmvisualizer",
+    name: "LLM Visualizer",
+    kind: "Interactive Visualization",
+    year: 2026,
+    blurb:
+      "Watches an LLM learn — an interactive view into training dynamics, live in the browser.",
+    summary:
+      "A window into the black box while it's still forming. LLM Visualizer renders how a language model's internals shift over training — weights, losses, the shape of the gradient — as an interactive Hugging Face Space anyone can poke at, no local setup required.",
+    tags: ["ai", "education", "visualization", "python"],
+    url: "https://huggingface.co/spaces/CodeWithJoe/LLMVisualizer",
+    coords: [-0.1, 0.4],
+  },
+  {
+    id: "rag",
+    name: "rag.py",
+    kind: "Research Tool",
+    year: 2026,
+    blurb:
+      "A minimal, one-file local RAG pipeline built to find out exactly where retrieval-augmented generation helps — and where it quietly fails.",
+    summary:
+      "No vector database, no framework — just Ollama for embeddings and generation and a normalized numpy matrix for search, because cosine similarity over an array that fits in memory is one line of code. Built to strip RAG down to its mechanism, with the findings on where the pattern earns its complexity written up in the README itself.",
+    tags: ["ai", "python", "education"],
+    url: "https://github.com/Jurgenw81/RAG",
+    coords: [0.3, 0.65],
+  },
+  {
+    id: "whywrong",
+    name: "WhyWrong",
+    kind: "Web App",
+    year: 2026,
+    blurb:
+      "An AI learning debugger — diagnoses the misconception behind a wrong answer instead of just marking it wrong.",
+    summary:
+      "Don't just correct mistakes, understand them. WhyWrong classifies a student's free-text answer against a library of known misconceptions, keeps a live probability distribution over competing hypotheses, asks the one question that separates them, and only then teaches the specific gap it found — demoed across a twelve-topic path from 'what is a neural network' to overfitting.",
+    tags: ["ai", "education", "web"],
+    url: "https://whywrong.onrender.com/",
+    coords: [-0.15, -0.05],
+  },
+  {
+    id: "asimov-dynamics-lab",
+    name: "Asimov Dynamics Lab",
+    kind: "Robotics Simulator",
+    year: 2026,
+    blurb:
+      "A browser-based MuJoCo workbench for the open-source Asimov biped — no Python, no backend, just physics in a tab.",
+    summary:
+      "The Asimov v0 biped from Menlo Research, fully simulated in-browser through MuJoCo WebAssembly. Command all 12 powered leg joints with live sliders, inspect any of the 15 robot bodies, fire directional force pulses and watch delivered impulse, and change ground friction from ice to high-grip — a physical-computing sandbox that needs nothing installed to run.",
+    tags: ["hardware", "ai", "visualization", "web"],
+    url: "https://jurgenw81.github.io/asimov-dynamics-lab/",
+    coords: [0.65, -0.3],
+  },
+  {
+    id: "kitespot-atlas",
+    name: "Kitespot Atlas",
+    kind: "Web App",
+    year: 2026,
+    blurb:
+      "A live world map of 211 kitesurfing spots, scored to your body weight and kite quiver — and operable by an AI agent alongside you.",
+    summary:
+      "Every spot is scored in real time against your rider profile, but the real experiment is underneath: the same scoring engine, map camera, trip planner, and session log are exposed to an agent through WebMCP, so an AI can drive the page itself — set your weight and kite sizes, re-rank all 211 spots, and find you wind — rather than describing the site back to you.",
+    tags: ["maps", "geo", "web", "ai"],
+    url: "https://jurgenw81.github.io/kitespot-atlas/",
+    coords: [0.4, 0.35],
+  },
+  {
+    id: "bullsvsbears",
+    name: "BullsVsBears",
+    kind: "Web App",
+    year: 2026,
+    blurb:
+      "Visualizes BTC, ETH, and SOL price action as a running contest between bulls and bears.",
+    summary:
+      "Strips a candlestick chart down to the one question everyone actually wants answered: right now, who's winning? BullsVsBears turns BTC-USD, ETH-USD, and SOL-USD price data into a live bulls-vs-bears read, trading chart-reading skill for an instant, visceral sense of momentum.",
+    tags: ["finance", "dashboard", "real-time", "visualization", "web"],
+    url: "https://jurgenw81.github.io/bullsvsbears/",
+    coords: [0.25, -0.55],
+  },
 ];
 
 // Tag -> color hue (degrees, oklch). Drives node halo.
