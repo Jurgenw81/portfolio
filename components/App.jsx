@@ -3,7 +3,7 @@
 //  App — root component. Wires the latent field, sidebar, list, and panel.
 // ============================================================================
 
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 
 function App() {
   const [hovered, setHovered] = useState(null);
@@ -25,6 +25,7 @@ function App() {
   }, []);
 
   const selected = window.PROJECTS.find((p) => p.id === selectedId) || null;
+  const plistRef = useRef(null);
 
   return (
     <div className={`app ${bootDone ? "booted" : "booting"}`}>
@@ -45,6 +46,7 @@ function App() {
           setHovered={setHovered}
           selected={selectedId}
           setSelected={setSelectedId}
+          avoidRef={plistRef}
         />
         <window.ProjectList
           projects={window.PROJECTS}
@@ -52,6 +54,7 @@ function App() {
           setHovered={setHovered}
           selected={selectedId}
           setSelected={setSelectedId}
+          rootRef={plistRef}
         />
       </main>
 

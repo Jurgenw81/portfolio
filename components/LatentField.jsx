@@ -7,12 +7,13 @@
 
 const { useEffect, useRef, useState, useMemo, useCallback } = React;
 
-function LatentField({ projects, hovered, setHovered, selected, setSelected }) {
+function LatentField({ projects, hovered, setHovered, selected, setSelected, avoidRef }) {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const rafRef = useRef(null);
   const tRef = useRef(0);
   const [size, setSize] = useState({ w: 800, h: 600 });
+  const [exclRect, setExclRect] = useState(null);
 
   // Resize observer
   useEffect(() => {
@@ -25,6 +26,34 @@ function LatentField({ projects, hovered, setHovered, selected, setSelected }) {
     return () => ro.disconnect();
   }, []);
 
+  // Track the bounding box of any UI overlay (e.g. the project list) that
+  // floats on top of the canvas, so node layout can steer clear of it.
+  // The list's own CSS caps its height (see .plist max-height), so this
+  // box stays a small corner of the canvas rather than the whole edge —
+  // that's what keeps the per-node nudge below from bunching nodes up.
+  useEffect(() => {
+    if (!avoidRef || !avoidRef.current || !wrapRef.current) return;
+    const update = () => {
+      if (!avoidRef.current || !wrapRef.current) return;
+      const er = avoidRef.current.getBoundingClientRect();
+      const wr = wrapRef.current.getBoundingClientRect();
+      setExclRect({
+        left: er.left - wr.left,
+        right: er.right - wr.left,
+        top: er.top - wr.top,
+        bottom: er.bottom - wr.top,
+      });
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(avoidRef.current);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, [avoidRef, size]);
+
   // Project layout in pixel space
   const layout = useMemo(() => {
     const pad = 80;
@@ -32,13 +61,66 @@ function LatentField({ projects, hovered, setHovered, selected, setSelected }) {
     const h = size.h - pad * 2;
     const cx = size.w / 2;
     const cy = size.h / 2;
-    return projects.map((p) => ({
+    const r = 26;
+    // Keep clear of the halo (~r*3.2) plus label text below the node.
+    const rectMargin = r * 3.2 + 20;
+    const nodes = projects.map((p) => ({
       ...p,
       x: cx + (p.coords[0] * w) / 2,
       y: cy + (p.coords[1] * h) / 2,
-      r: 26,
+      r,
     }));
-  }, [projects, size]);
+
+    const pushOutOfRect = (n) => {
+      if (!exclRect) return;
+      const left = exclRect.left - rectMargin;
+      const right = exclRect.right + rectMargin;
+      const top = exclRect.top - rectMargin;
+      const bottom = exclRect.bottom + rectMargin;
+      if (n.x > left && n.x < right && n.y > top && n.y < bottom) {
+        // Push out toward whichever edge of the excluded zone is closer.
+        const distToRight = right - n.x;
+        const distToTop = n.y - top;
+        if (distToRight < distToTop) n.x = right;
+        else n.y = top;
+      }
+    };
+
+    // A few rounds of pairwise repulsion (keeping clear of the excluded
+    // zone each round) so nodes forced out from behind the list — or any
+    // pair that simply started close together — settle apart instead of
+    // stacking on the same spot or edge.
+    const minDist = r * 2 + 70; // clearance for circle + label
+    nodes.forEach(pushOutOfRect);
+    for (let iter = 0; iter < 8; iter++) {
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i];
+          const b = nodes[j];
+          let dx = b.x - a.x;
+          let dy = b.y - a.y;
+          let dist = Math.hypot(dx, dy);
+          if (dist >= minDist) continue;
+          if (dist < 0.001) {
+            const angle = (i * 137.5 + j) % 360; // deterministic, avoids Math.random jitter
+            dx = Math.cos(angle);
+            dy = Math.sin(angle);
+            dist = 1;
+          }
+          const move = (minDist - dist) / 2;
+          const ux = dx / dist;
+          const uy = dy / dist;
+          a.x -= ux * move;
+          a.y -= uy * move;
+          b.x += ux * move;
+          b.y += uy * move;
+        }
+      }
+      nodes.forEach(pushOutOfRect);
+    }
+
+    return nodes;
+  }, [projects, size, exclRect]);
 
   // Edges: any pair sharing a tag
   const edges = useMemo(() => {

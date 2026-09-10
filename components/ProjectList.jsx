@@ -4,9 +4,9 @@
 //  Hovering a list item highlights its node, clicking selects it.
 // ============================================================================
 
-function ProjectList({ projects, hovered, setHovered, selected, setSelected }) {
+function ProjectList({ projects, hovered, setHovered, selected, setSelected, rootRef }) {
   return (
-    <div className="plist">
+    <div className="plist" ref={rootRef}>
       <div className="sb-tag">// projects ({projects.length})</div>
       <ul>
         {projects.map((p) => {

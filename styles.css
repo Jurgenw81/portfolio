@@ -297,6 +297,9 @@ a:hover { color: var(--fg); }
   left: 24px;
   bottom: 24px;
   width: 280px;
+  max-height: min(360px, calc(100% - 48px));
+  display: flex;
+  flex-direction: column;
   background: rgba(11, 13, 20, 0.78);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -304,14 +307,17 @@ a:hover { color: var(--fg); }
   backdrop-filter: blur(10px);
   z-index: 2;
 }
-.plist .sb-tag { margin-bottom: 8px; }
+.plist .sb-tag { margin-bottom: 8px; flex: none; }
 .plist ul {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 4px 0 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
 }
 .plist li {
   display: grid;
