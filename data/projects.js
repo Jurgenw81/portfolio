@@ -19,8 +19,8 @@ window.PROFILE = {
     "Building agents and interfaces at the edge of language models, the web, and physical computing.",
   bio: [
     "Software engineer with 5+ years shipping production systems — strong background in web3, smart contracts, and full-stack web work.",
-    "Hands-on with embedded computing — Raspberry Pi, Arduino, ESP32, and Jetson Nano. I like when software reaches into the physical world.",
-    "Currently studying Artificial Intelligence at JKU Linz: PyTorch, multi-agent systems, retrieval, evals, and the Anthropic MCP (Model Context Protocol) ecosystem.",
+    "Hands-on with embedded computing and robotics — Raspberry Pi, Arduino, ESP32, Jetson Nano, and MuJoCo physics sims. I like when software reaches into the physical world.",
+    "Currently studying Artificial Intelligence at JKU Linz: PyTorch, multi-agent systems, retrieval, evals, and the emerging agent-protocol stack — MCP and WebMCP.",
   ],
   now: [
     { label: "studying", value: "AI · JKU Linz" },
